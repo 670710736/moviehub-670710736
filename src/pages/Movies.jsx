@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import MovieGrid from '../components/MovieGrid';
-import { getMovies, CACHE_KEY } from '../api/tmdb';
-import { forget } from '../api/cache';
+import { getMovies } from '../api/backend';
+// import { getMovies, CACHE_KEY } from '../api/tmdb';
+// import { forget } from '../api/cache';
 
 function Movies() {
   const [query, setQuery] = useState('');          // คำค้น (controlled input) กรองในเครื่อง ไม่ยิง API
   const [genre, setGenre] = useState('all');       // แนวที่เลือกจากแถบปุ่ม 'all' = ทุกแนว
-
   const [movies, setMovies] = useState([]);        // รายการจาก getMovies() (โหลดจริงวันละครั้ง)
   const [status, setStatus] = useState('loading'); // 'loading' | 'success' | 'error'
   const [error, setError] = useState(null);
@@ -39,10 +39,19 @@ function Movies() {
   // ค่าที่คำนวณจาก state ไม่ต้องเป็น state เอง: รายชื่อแนวที่มีจริง และรายการหลังกรอง
   const genres = [...new Set(movies.map(m => m.genre).filter(Boolean))];
   const q = query.trim().toLowerCase();
-  const shown = movies.filter(m =>
+  const shown = movies.filter(m => {
+  const title = m.title ?? m.name ?? '';
+  const titleTh = m.titleTh ?? m.title_th ?? '';
+
+  return (
     (genre === 'all' || m.genre === genre) &&
-    (q === '' || m.title.toLowerCase().includes(q) || (m.titleTh ?? '').toLowerCase().includes(q))
+    (
+      q === '' ||
+      title.toLowerCase().includes(q) ||
+      titleTh.toLowerCase().includes(q)
+    )
   );
+});
 
   const chipClass = (active) =>
     'rounded-full border px-3 py-1 text-sm transition ' +
@@ -72,7 +81,7 @@ function Movies() {
 
       {/* ปุ่มลองใหม่ต้องล้าง cache ก่อน ไม่งั้นจะได้ของเก่าหรือ error เดิมซ้ำ */}
       <MovieGrid movies={shown} status={status} error={error}
-                 onRetry={() => { forget(CACHE_KEY); setReloadKey(k => k + 1); }} />
+                 onRetry={() => { setReloadKey(k => k + 1); }} />
     </div>
   );
 }
