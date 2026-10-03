@@ -37,7 +37,7 @@ export function login(email, password) {
 }
 export function getMe(token) {
   return apiFetch('/api/me', { token });
-} 
+}
 
 // ---------- รีวิว ----------
 export function getReviews(movieId) {
@@ -70,5 +70,5 @@ export async function getMovies() {
 }
 
 export async function getMovie(id) {
-  return apiFetch(`/api/movies/${id}`);
+  return apiFetch(`/api/movies/${id}`);   // ได้ { movie, reviews, myVote, inWishlist }
 }
